@@ -39,7 +39,7 @@ std::tuple<u_int8_t *, int, int> reduceImage(uint8_t *img, int width, int height
     return {output, new_width, new_height};
 }
 
-void fastCornerDetection(uchar *input, float *output, int width, int height, int T1, int T2)
+void fastCornerDetection(uchar *input, float *output, int width, int height, int T1, int T2, int window_size)
 {
     /**
      * 3 x 3 window example
@@ -53,11 +53,12 @@ void fastCornerDetection(uchar *input, float *output, int width, int height, int
     auto[low_res, low_width, low_height] = reduceImage(input, width, height, 2.0, 2.0);
     int scaleX = width / low_width;
     int scaleY = height / low_height;
+    int padding = window_size/2;
 
     int IC, IA1, IB1, IA2, IB2;
     int rA, rB, C_sim;
 
-    for (int r=1; r<low_height-1; ++r)
+    for (int r=padding; r<low_height-padding; ++r)
     {
         uchar* preRow = &low_res[(r-1) * low_width];
         uchar* currRow = &low_res[r * low_width];
@@ -67,8 +68,8 @@ void fastCornerDetection(uchar *input, float *output, int width, int height, int
             // Simple cornerness measure on low resoluion image
             // vertical
             IC = currRow[c];
-            IA1 = currRow[c+1];
-            IA2 = currRow[c-1];
+            IA1 = currRow[c+padding];
+            IA2 = currRow[c-padding];
 
             // horizontal
             IB1 = preRow[c];
@@ -86,8 +87,8 @@ void fastCornerDetection(uchar *input, float *output, int width, int height, int
 
                 // Simple cornerness measure on input image(orignal size)
                 IC = input[y*width + x];
-                IA1 = input[y*width + x+1];
-                IA2 = input[y*width + x-1];
+                IA1 = input[y*width + x+padding];
+                IA2 = input[y*width + x-padding];
 
                 IB1 = input[(y-1)*width + x];
                 IB2 = input[(y+1)*width + x];
