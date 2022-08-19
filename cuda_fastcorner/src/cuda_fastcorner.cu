@@ -38,18 +38,19 @@ __global__ void reduceImgKernel(uchar *input, int width, int height, float scale
     mem[threadIdx.y + shared_w + threadIdx.x] = input[row*width + col];
     val = 0;
     __syncthreads();
-    atomicAdd(&val, input[row*width+col]);
+    //atomicAdd(&val, input[row*width+col]);
 
 }
 
-__global__ void fastCornerDetectorKernel(uchar *low_img, int low_w, int low_h, uchar *input_img, int input_w, int input_h, uchar* result)
+__global__ void fastCornerDetectorKernel(uchar *low_img, int low_w, int low_h, uchar *input_img, int input_w, int input_h, int T1, int T2, float* result)
 {
 
 }
 
 __host__ void cudaFastCornerDetectorHost(uchar * img, float* result, int width, int height, int T1, int T2, float scaleX, float scaleY)
 {
-    uchar *d_input_img, *d_low_img, *d_result;
+    uchar *d_input_img, *d_low_img;
+    float *d_result;
 
     int low_w = int(width/scaleX + 0.5);
     int low_h = int (height/scaleY + 0.5);
@@ -57,7 +58,7 @@ __host__ void cudaFastCornerDetectorHost(uchar * img, float* result, int width, 
     size_t input_size = width * height * sizeof(uchar);
 
     cudaErrChk(cudaMalloc((void **)&d_input_img, input_size))
-    cudaErrChk(cudaMalloc((void **)&d_result, input_size))
+    cudaErrChk(cudaMalloc((void **)&d_result, width*height*sizeof(float)))
     cudaErrChk(cudaMalloc((void **)&d_low_img, low_size))
 
     cudaErrChk(cudaMemcpy(d_input_img, img, input_size, cudaMemcpyHostToDevice))
