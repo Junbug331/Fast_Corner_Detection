@@ -70,14 +70,17 @@ __host__ void cudaFastCornerDetectorHost(uchar * img, float* result, int width, 
     reduceImgKernel<<<grid, block, sizeof(uchar)*threadsPerBlock*threadsPerBlock >>>(d_input_img, width, height, scaleX, scaleY, d_low_img);
     cudaErrChk(cudaGetLastError())
 
-    int blocksPerGridX = (low_w + threadsPerBlock-1)/threadsPerBlock;
-    int blocksPerGridY = (low_h + threadsPerBlock-1)/threadsPerBlock;
-    grid = dim3(blocksPerGridX, blocksPerGridY);
 
-    // Call fast corner detection kernel
-    threadsPerBlock = 32;
-    fastCornerDetectorKernel<<<grid, block>>>(d_low_img, low_w, low_h, d_input_img, width, height, T1, T2, d_result);
-    cudaErrChk(cudaMemcpy(result, d_result, input_size, cudaMemcpyDeviceToHost))
+
+
+//    int blocksPerGridX = (low_w + threadsPerBlock-1)/threadsPerBlock;
+//    int blocksPerGridY = (low_h + threadsPerBlock-1)/threadsPerBlock;
+//    grid = dim3(blocksPerGridX, blocksPerGridY);
+//
+//    // Call fast corner detection kernel
+//    threadsPerBlock = 32;
+//    fastCornerDetectorKernel<<<grid, block>>>(d_low_img, low_w, low_h, d_input_img, width, height, T1, T2, d_result);
+//    cudaErrChk(cudaMemcpy(result, d_result, input_size, cudaMemcpyDeviceToHost))
 
     cudaErrChk(cudaFree(d_input_img))
     cudaErrChk(cudaFree(d_low_img))
